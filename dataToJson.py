@@ -9,8 +9,8 @@ import logging.handlers
 import argparse
 import textwrap
 
-DATA_FILE = 'data/Test Your Awareness eyes data.txt';
-JSON_FILE = 'PoR-data.json';
+data_path = "data/Test Your Awareness eyes data.txt";
+JSON_FILE = "PoR-data.json";
 
 ''' arguments available to launch the app in a specific way '''
 feature = argparse.ArgumentParser(prog='Data to JSON converter', add_help=True, prefix_chars='-', formatter_class=argparse.RawTextHelpFormatter, description=textwrap.dedent('''\
@@ -19,7 +19,7 @@ feature = argparse.ArgumentParser(prog='Data to JSON converter', add_help=True, 
         This script is meant to be used in order to convert data to a suitable format, JSON.
         It takes necessary data from the original file and write a new one.
         '''))
-feature.add_argument('-f', '--file', help='Path of the original file to convert', type=str, default=DATA_FILE, required=False)
+#feature.add_argument('-f', '--file', help='Path of the original file to convert', type=str, default=data_path, required=False)
 feature.add_argument('-v', '--version', help='%(prog)s program version', action='version', version='%(prog)s v0.1')
 args = feature.parse_args()
 
@@ -44,20 +44,39 @@ def fail(msg):
     print(">>> Oops:",msg,file=sys.stderr)
     logger.warning('Oops: %s', msg)
 
-# Method to check the presence of a JSON file
-def checkJsonFile():
-    try:
-        with open(JSON_FILE) as json_data:
-            data = json.load(json_data)
-    except IOError as e:
-        data = []
-        fail('IOError while trying to open JSON file')
-        raise
+def converter(src, dst):
+    logger.info('Source file path: %s', src)
+    logger.info('Exportation file name: %s', dst)
+    data = []
+    with open(src, 'r') as f:
+        #f.readlines()[2:]
+        # Read each line and trims of extra spaces and gives only the valid words
+        for line in f:
+            value = list(line.strip().split())
+            logger.debug(value)
+            # Creating dictionary for each parameter
+            temp_data = {
+                    'time': value[0],
+                    'type': value[1],
+                    'LporX': value[21],
+                    'LporY': value[22],
+                    'RporX': value[23],
+                    'RporY': value[24]
+            }
+            data.append(temp_data)
+    # Creating the JSON file
+    with open(dst, 'w') as out_file:
+        json.dump(data, out_file, indent = 2)
+    out_file.close()
+    logger.info('File has been successfully converted in JSON')
 
 
 if __name__ == "__main__":
-    while True:
-        checkJsonFile()
+    try:
+        fileSource = data_path
+        fileDestination = JSON_FILE
+        converter(fileSource, fileDestination)
+
     except (KeyboardInterrupt, SystemExit):
         logger.info('KeyboardInterrupt/SystemExit caught')
         sys.exit()
