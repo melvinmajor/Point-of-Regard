@@ -1,0 +1,22 @@
+# Git ignore of Point-of-Regard
+# See this repository at:
+# https://github.com/melvinmajor/Point-of-Regard
+# ==============================================
+
+# Files and folders of IDE
+.vscode/
+.idea/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
