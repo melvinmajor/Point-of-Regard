@@ -71,12 +71,7 @@ data = readDataFromJsonFile(PATH_TO_JSON_FILE)
 
 cap = cv2.VideoCapture(PATH_TO_VIDEO)
 
-fig, ax = plt.subplots()
-
-img = mpimg.imread('moi.jpg')
-
-imgplot = plt.imshow(img)
-
+#fig, ax = plt.subplots()
 
 #simpleConcatData(data, int(cap.get(cv2.CAP_PROP_FRAME_COUNT)))
 
