@@ -1,3 +1,4 @@
+import os
 import json
 import logging
 import logging.handlers
@@ -5,6 +6,7 @@ import logging.handlers
 FRAME_RATE = 34  # 34 frames / seconde
 PATH_TO_VIDEO = "data/test-your-awareness.avi"
 PATH_TO_JSON_FILE = "PoR-data.json"
+TMP_FILE = "tmp-average.txt"
 FINAL_JSON_FILE = "PoR-data-average.json"
 
 
@@ -83,18 +85,49 @@ def toJson(seconde, LporX, LporY, RporX, RporY):
     return bob
 
 
-def writeJson(bobIsWaiting):
+def tempWriteJson(bobLikesToBeATemporaryFile):
+    try:
+        with open(TMP_FILE, 'a') as f:
+            f.writelines(bobLikesToBeATemporaryFile)
+            f.close()
+            logger.info('Data written in temporary file successful')
+    except IOError as e:
+        fail('IOError while trying to open and write temporary file')
+
+
+def writeJson():
     """
-    :param bobIsWaiting: formatted value in JSON of a second
     :return: Nothing as this function is used to write data directly in JSON
     """
     #bobIsDumping = json.dumps(bobIsWaiting, indent = 2)
     #bobIsSwitching = bobIsDumping
+    logger.info('Source file path: %s', FINAL_JSON_FILE)
+    bobIsWaiting = []
     try:
-        with open(FINAL_JSON_FILE, 'a') as f:
+        with open(TMP_FILE, 'r') as f:
+            for line in f:
+                value = list(line.strip().split())
+                logger.debug(value)
+                # Creating dictionary for each parameter
+                temp_data = {
+                    'time': value[0],
+                    'LporX': value[1],
+                    'LporY': value[2],
+                    'RporX': value[3],
+                    'RporY': value[4]
+                }
+                bobIsWaiting.append(temp_data)
+    except IOError as e:
+        fail('IOError while trying to open and read source file')
+        raise
+
+    try:
+        # Creating the JSON file
+        with open (FINAL_JSON_FILE, 'w') as f:
             json.dump(bobIsWaiting, f, indent=2)
-            f.close()
-            logger.info('Data written in JSON file successfully')
+        f.close()
+        os.remove('tmp-average.txt')  # Delete temporary file as not useful anymore
+        logger.info('Data written in JSON file successful')
     except IOError as e:
         fail('IOError while trying to open and write JSON file')
 
@@ -122,14 +155,16 @@ def avgDataPerSecond():
                     logger.info('Working on second : %s', seconde)
                     # MOYENNE DES DONNEES
                     logger.debug('Making average of Point-of-Regard data')
-                    moyLporX = sommeLporX / numberOfDataPerSecond(j)
-                    moyLporY = sommeLporY / numberOfDataPerSecond(j)
-                    moyRporX = sommeRporX / numberOfDataPerSecond(j)
-                    moyRporY = sommeRporY / numberOfDataPerSecond(j)
+                    ''' Moyenne somme valeurs divisé par nbre valeurs dans somme (max 4 valeurs après virgule) '''
+                    moyLporX = round((sommeLporX / numberOfDataPerSecond(j)), 4)
+                    moyLporY = round((sommeLporY / numberOfDataPerSecond(j)), 4)
+                    moyRporX = round((sommeRporX / numberOfDataPerSecond(j)), 4)
+                    moyRporY = round((sommeRporY / numberOfDataPerSecond(j)), 4)
                     logger.debug('Converting data to JSON format...')
-                    dataToJson = toJson(seconde, round(moyLporX, 4), round(moyLporY, 4), round(moyRporX, 4),
-                                  round(moyRporY, 4))
-                    writeJson(dataToJson)
+                    dataToTmp = (str(seconde), ' ', str(moyLporX), ' ', str(moyLporY), ' ', str(moyRporX), ' ',
+                                 str(moyRporY), '\n')
+                    tempWriteJson(dataToTmp)
+                    writeJson()
                     j = j + numberOfDataPerSecond(j) # J Permet de rester à la même seconde
                     # INITIALISATION des données pour reprendre àpd la seconde suivante
                     sommeLporX = 0.0
