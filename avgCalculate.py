@@ -123,7 +123,7 @@ def writeJson():
 
     try:
         # Creating the JSON file
-        with open (FINAL_JSON_FILE, 'w') as f:
+        with open (FINAL_JSON_FILE, 'a') as f:
             json.dump(bobIsWaiting, f, indent=2)
         f.close()
         os.remove('tmp-average.txt')  # Delete temporary file as not useful anymore
