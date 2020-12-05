@@ -43,11 +43,17 @@ def simpleConcatData(data, frameCount):
     frameIncr = 0
     packetIncr = 0
 
+    sumX = 0
+    sumY = 0
+    isCut = False
     return_data = []
 
     for index, p in enumerate(data):
 
         packetIncr += 1
+
+        sumX += p["LproX"]
+        sumY += p["LproY"]
 
         if packetIncr == 1:
             """return_data[frameIncr] = p"""
@@ -55,12 +61,18 @@ def simpleConcatData(data, frameCount):
         else:
             if (index+1) % cutFrequency == 0:
 
-                    packetIncr += 1
+                isCut = True
+                packetIncr += 1
 
             if packetIncr >= packetSize:
 
-                    packetIncr = 0
-                    frameIncr += 1
+                moyenne = moyenneData({'sumX':sumX, 'sumY': sumY, 'validate': isCut})
+
+                packetIncr = 0
+                frameIncr += 1
+
+                sumX = 0
+                sumY = 0
 
     print("total " + str(frameIncr))
 
@@ -70,7 +82,9 @@ cap = cv2.VideoCapture(PATH_TO_VIDEO)
 
 simpleConcatData(data, int(cap.get(cv2.CAP_PROP_FRAME_COUNT)))
 
-readVideo(10,10,10)
+#readVideo(10,10,10)
+
+
 
 # Check if camera opened successfully
 
