@@ -1,8 +1,5 @@
-#import cv2
 import json
-import time
-import numpy as np
-import cv2
+from plot import readVideo
 
 from matplotlib import pyplot as plt, image as mpimg
 # Create a VideoCapture object and read from input file
@@ -66,10 +63,10 @@ def simpleConcatData(data, frameCount):
 
     print("total" + str(frameIncr))
 
+readVideo(10,10,10)
+#data = readDataFromJsonFile(PATH_TO_JSON_FILE)
 
-data = readDataFromJsonFile(PATH_TO_JSON_FILE)
-
-cap = cv2.VideoCapture(PATH_TO_VIDEO)
+#cap = cv2.VideoCapture(PATH_TO_VIDEO)
 
 #fig, ax = plt.subplots()
 
