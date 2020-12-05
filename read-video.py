@@ -1,5 +1,7 @@
 import json
 import cv2
+from plot import readVideo
+
 
 from matplotlib import pyplot as plt, image as mpimg
 # Create a VideoCapture object and read from input file
@@ -67,6 +69,8 @@ data = readDataFromJsonFile(PATH_TO_JSON_FILE)
 cap = cv2.VideoCapture(PATH_TO_VIDEO)
 
 simpleConcatData(data, int(cap.get(cv2.CAP_PROP_FRAME_COUNT)))
+
+readVideo(10,10,10)
 
 # Check if camera opened successfully
 
