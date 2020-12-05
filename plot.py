@@ -100,7 +100,7 @@ def readVideo(dataList):
             print("Can't receive frame (stream end?). Exiting ...")
             break
 
-        movingDot = {'x': dataList[i]["LporX"], 'y': dataList[i]["LporY"], 'positive_x': False, 'positive_y': False}
+        movingDot = {'x': dataList[i]["LporX"]/1.8, 'y': dataList[i]["LporY"]/1.8, 'positive_x': False, 'positive_y': False}
 
         # cv2.waitKey(int(1000/FRAME_RATE))
         plotDotOnImage(frame, movingDot)

@@ -24,6 +24,19 @@ def readDataFromJsonFile(path):
         return json.load(json_file)
 
 
+def moyenneData(data):
+    
+    if(not data["validate"]):
+        tempX = data["sumX"]/20
+        tempY = data["sumY"]/20
+    else:
+        tempX = data["sumX"]/19
+        tempY = data["sumY"]/19
+    moyenne = {"x": tempX,"y": tempY}
+
+    return moyenne
+
+
 def simpleConcatData(data, frameCount):
     """
     TODO : implémenter la partie du code faisant la moyenne des différents paquets
@@ -43,20 +56,21 @@ def simpleConcatData(data, frameCount):
     frameIncr = 0
     packetIncr = 0
 
-    sumX = 0
-    sumY = 0
+    sumX = 0.0
+    sumY = 0.0
     isCut = False
     return_data = []
 
     for index, p in enumerate(data):
-
+        
         packetIncr += 1
-
-        sumX += p["LproX"]
-        sumY += p["LproY"]
-
+        try:
+            sumX += float(p["LporX"])
+            sumY += float(p["LporY"])
+        except KeyError:
+            continue
         if packetIncr == 1:
-            """return_data[frameIncr] = p"""
+            return_data.append(p)
 
         else:
             if (index+1) % cutFrequency == 0:
@@ -67,22 +81,25 @@ def simpleConcatData(data, frameCount):
             if packetIncr >= packetSize:
 
                 moyenne = moyenneData({'sumX':sumX, 'sumY': sumY, 'validate': isCut})
+                return_data[frameIncr]["LporX"] = moyenne["x"]
+                return_data[frameIncr]["LporY"] = moyenne["y"]
 
                 packetIncr = 0
                 frameIncr += 1
 
-                sumX = 0
-                sumY = 0
+                sumX = 0.0
+                sumY = 0.0
+                isCut = False
 
-    print("total " + str(frameIncr))
+    return return_data
 
 data = readDataFromJsonFile(PATH_TO_JSON_FILE)
 
 cap = cv2.VideoCapture(PATH_TO_VIDEO)
 
-simpleConcatData(data, int(cap.get(cv2.CAP_PROP_FRAME_COUNT)))
+superData = simpleConcatData(data, int(cap.get(cv2.CAP_PROP_FRAME_COUNT)))
 
-#readVideo(10,10,10)
+readVideo(superData)
 
 
 
