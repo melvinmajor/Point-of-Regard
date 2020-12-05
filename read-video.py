@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 #import cv2
 import json
 import time
+=======
+import cv2
+import matplotlib.pyplot as plt
+>>>>>>> 46ee6673185111fa97c6d25ee16c67df05f19382
 import numpy as np
 import cv2
 
@@ -8,6 +13,7 @@ from matplotlib import pyplot as plt, image as mpimg
 # Create a VideoCapture object and read from input file
 # If the input is the camera, pass 0 instead of the video file name
 
+<<<<<<< HEAD
 # variable definition
 FRAME_RATE = 34
 PATH_TO_VIDEO = "data/test-your-awareness.avi"
@@ -54,6 +60,10 @@ def simpleConcatData(data, frameCount):
             return_data[frameIncr] = p
 
         else:
+=======
+# number of images per second
+FRAME_RATE = 25
+>>>>>>> 46ee6673185111fa97c6d25ee16c67df05f19382
 
             if (index+1) % cutFrequency == 0:
 
