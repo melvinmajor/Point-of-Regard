@@ -79,7 +79,7 @@ def plotDotOnImage(image, dot):
     cv2.imshow('frame', X)
 
 
-def readVideo(data_x, data_y, time):
+def readVideo(dataList):
 
     cap = cv2.VideoCapture(PATH_TO_VIDEO)
 
@@ -87,6 +87,8 @@ def readVideo(data_x, data_y, time):
 
     if (cap.isOpened() == False):
         print("Error opening video stream or file")
+
+    i = 0
 
     # Read until video is completed
     while (cap.isOpened()):
@@ -98,16 +100,20 @@ def readVideo(data_x, data_y, time):
             print("Can't receive frame (stream end?). Exiting ...")
             break
 
+        movingDot = {'x': dataList[i]["LporX"], 'y': dataList[i]["LporY"], 'positive_x': False, 'positive_y': False}
+
         # cv2.waitKey(int(1000/FRAME_RATE))
         plotDotOnImage(frame, movingDot)
 
-        funnyDot(movingDot)
+        #funnyDot(movingDot)
         ##################  Permet de transformer en image le plot  #######################################
 
         plt.close('all')
 
         if cv2.waitKey(1) == ord('q'):
             break
+    
+        i+=1
 
     # When everything done, release the video capture object
     cap.release()
