@@ -66,25 +66,6 @@ def numberOfDataPerSecond(j):
             return count
 
 
-def toJson(seconde, LporX, LporY, RporX, RporY):
-    """
-    :param seconde: corresponding second
-    :param LporX: point of regard position, left eye, x direction, in pixels
-    :param LporY: point of regard position, left eye, y direction, in pixels
-    :param RporX: point of regard position, right eye, x direction, in pixels
-    :param RporY: point of regard position, right eye, y direction, in pixels
-    :return: formatted value in JSON
-    """
-    bob = {
-        'time': seconde,
-        'LporX': LporX,
-        'LporY': LporY,
-        'RporX': RporX,
-        'RporY': RporY
-    }
-    return bob
-
-
 def tempWriteJson(bobLikesToBeATemporaryFile):
     try:
         with open(TMP_FILE, 'a') as f:
@@ -136,12 +117,14 @@ def avgDataPerSecond():
     """
     :return: un fichier json avec la moyenne des données par seconde
     """
+
     sommeLporX = 0.0
     sommeLporY = 0.0
     sommeRporX = 0.0
     sommeRporY = 0.0
     i = 0
     j = 0
+    jsonToWrite = []
     for key in data:
         try:
             # SOMME DES DONNEES PAR SECONDE
@@ -161,10 +144,16 @@ def avgDataPerSecond():
                     moyRporX = round((sommeRporX / numberOfDataPerSecond(j)), 4)
                     moyRporY = round((sommeRporY / numberOfDataPerSecond(j)), 4)
                     logger.debug('Converting data to JSON format...')
-                    dataToTmp = (str(seconde), ' ', str(moyLporX), ' ', str(moyLporY), ' ', str(moyRporX), ' ',
-                                 str(moyRporY), '\n')
-                    tempWriteJson(dataToTmp)
-                    writeJson()
+                    dataToTmp = {
+                        'time': str(seconde),
+                        'LporX': str(moyLporX),
+                        'LporY': str(moyLporY),
+                        'RporX': str(moyRporX),
+                        'RporY': str(moyRporY),
+                    }
+                    #tempWriteJson(dataToTmp)
+                    #writeJson()
+                    jsonToWrite.append(dataToTmp)
                     j = j + numberOfDataPerSecond(j) # J Permet de rester à la même seconde
                     # INITIALISATION des données pour reprendre àpd la seconde suivante
                     sommeLporX = 0.0
@@ -174,6 +163,15 @@ def avgDataPerSecond():
             i += 1
         except:
             pass
-
+    #print(jsonToWrite)
+    try:
+        # Creating the JSON file
+        with open(FINAL_JSON_FILE, 'w') as out_file:
+            json.dump(jsonToWrite, out_file, indent = 2)
+        out_file.close()
+        logger.info('File has been successfully converted in JSON')
+    except IOError as e:
+        fail('IOError while trying to open and write destination file')
+        raise
 
 avgDataPerSecond()
