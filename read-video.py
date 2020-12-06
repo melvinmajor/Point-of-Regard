@@ -138,13 +138,22 @@ def getYFromJsonFile(data):
 
 data = readDataFromJsonFile(PATH_TO_JSON_FILE)
 
-spl1 = UnivariateSpline(getTimeFromJsonFile(data), getXFromJsonFile(data))
-spl2 = UnivariateSpline(getTimeFromJsonFile(data), getYFromJsonFile(data))
+tabTimes = getTimeFromJsonFile(data)
+tabX = getXFromJsonFile(data)
+tabY = getYFromJsonFile(data)
 
-s = int(data[len(data)-2]["time"])
+spl1 = UnivariateSpline(tabTimes, tabX, k=3)
+spl2 = UnivariateSpline(tabTimes, tabY, k=3)
+
+s = int(tabTimes[len(tabTimes)-1])
+
+timePerImage = np.linspace(0, s, 1709)
+
+xArray = spl1(timePerImage)
+yArray = spl2(timePerImage) 
 
 cap = cv2.VideoCapture(PATH_TO_VIDEO)
 
 #superData = simpleConcatData(data, int(cap.get(cv2.CAP_PROP_FRAME_COUNT)))
 
-#readVideo(superData)
+readVideo(xArray, yArray)
