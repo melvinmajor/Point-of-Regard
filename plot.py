@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import cv2
 import numpy as np
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from scipy.interpolate import interp1d
 
 PATH_TO_VIDEO = "data/test-your-awareness.avi"
 FRAME_RATE = 1000
@@ -100,7 +101,7 @@ def readVideo(dataList):
             print("Can't receive frame (stream end?). Exiting ...")
             break
 
-        movingDot = {'x': dataList[i]["LporX"]/1.8, 'y': dataList[i]["LporY"]/1.8, 'positive_x': False, 'positive_y': False}
+        movingDot = {'x': dataList[i]["LporX"]/1.6, 'y': dataList[i]["LporY"]/1.6, 'positive_x': False, 'positive_y': False}
 
         # cv2.waitKey(int(1000/FRAME_RATE))
         plotDotOnImage(frame, movingDot)
@@ -120,8 +121,7 @@ def readVideo(dataList):
 
     # Closes all the frames
     cv2.destroyAllWindows()
-
-
+    
 """ *********************************** TODO functions ****************************************** """
 
 """def drawCircle(radius, x_center, y_center, image, color):
