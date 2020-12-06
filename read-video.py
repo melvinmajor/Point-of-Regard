@@ -1,6 +1,11 @@
 import json
+
 import cv2
 from plot import readVideo
+
+from scipy.interpolate import UnivariateSpline
+
+import numpy as np
 
 
 from matplotlib import pyplot as plt, image as mpimg
@@ -93,42 +98,80 @@ def simpleConcatData(data, frameCount):
 
     return return_data
 
+
+def getTimeFromJsonFile(data):
+
+    time = []
+
+    for index, p in enumerate(data):
+        if index==len(data)-1:
+            pass
+        else:
+            time.append(int(p["time"])-int(data[0]["time"]))
+
+    return time
+
+
+def getXFromJsonFile(data):
+    x = []
+
+    for p in data:
+        try:
+            x.append(float(p["LporX"]))
+        except KeyError:
+            continue
+
+    return x
+
+
+def getYFromJsonFile(data):
+    y = []
+
+    for p in data:
+        try:
+            y.append(float(p["LporY"]))
+        except KeyError:
+            continue
+
+    return y
+
+
 data = readDataFromJsonFile(PATH_TO_JSON_FILE)
 
 cap = cv2.VideoCapture(PATH_TO_VIDEO)
 
 superData = simpleConcatData(data, int(cap.get(cv2.CAP_PROP_FRAME_COUNT)))
 
-readVideo(superData)
+"""
+tabTimes = getTimeFromJsonFile(data)
+tabX = getXFromJsonFile(data)
+tabY = getYFromJsonFile(data)
 
+spl1 = UnivariateSpline(tabTimes, tabX, k=3)
+spl2 = UnivariateSpline(tabTimes, tabY, k=3)
+"""
 
+tabTimes = getTimeFromJsonFile(data)
+tabX = getXFromJsonFile(superData)
+tabY = getYFromJsonFile(superData)
 
-# Check if camera opened successfully
+tabX.append(tabX[len(tabX)-1])
+tabY.append(tabY[len(tabY)-1])
 
+s = int(tabTimes[len(tabTimes)-1])
 
-### Cette partie du code permet de lire la video avec CV2 ##############################
+timePerImage = np.linspace(0, s, 1709)
 
-"""if (cap.isOpened() == False):
-    print("Error opening video stream or file")
+spl1 = UnivariateSpline(timePerImage, tabX, k=5)
+spl2 = UnivariateSpline(timePerImage, tabY, k=5)
 
-# Read until video is completed
-while (cap.isOpened()):
+xArray = spl1(timePerImage)
+yArray = spl2(timePerImage)
 
-    ret, frame = cap.read()
+for i in range(50):
+    spl3 = UnivariateSpline(timePerImage, xArray, k=5)
+    spl4 = UnivariateSpline(timePerImage, yArray, k=5)
+    xArray = spl3(timePerImage)
+    yArray = spl4(timePerImage)
 
-# if frame is read correctly ret is True
-    if not ret:
-        print("Can't receive frame (stream end?). Exiting ...")
-        break
-
-    cv2.waitKey(int(1000/FRAME_RATE))
-    cv2.imshow('frame', frame)
-
-    if cv2.waitKey(1) == ord('q'):
-        break
-
-# When everything done, release the video capture object
-cap.release()
-
-# Closes all the frames
-cv2.destroyAllWindows()"""
+readVideo(xArray, yArray)
