@@ -1,6 +1,11 @@
 import json
+
 import cv2
 from plot import readVideo
+
+from scipy.interpolate import UnivariateSpline
+
+import numpy as np
 
 
 from matplotlib import pyplot as plt, image as mpimg
@@ -93,42 +98,53 @@ def simpleConcatData(data, frameCount):
 
     return return_data
 
+
+def getTimeFromJsonFile(data):
+
+    time = []
+
+    for index, p in enumerate(data):
+        if index==len(data)-1:
+            pass
+        else:
+            time.append(int(p["time"])-int(data[0]["time"]))
+
+    return time
+
+
+def getXFromJsonFile(data):
+    x = []
+
+    for p in data:
+        try:
+            x.append(float(p["LporX"]))
+        except KeyError:
+            continue
+
+    return x
+
+
+def getYFromJsonFile(data):
+    y = []
+
+    for p in data:
+        try:
+            y.append(float(p["LporY"]))
+        except KeyError:
+            continue
+
+    return y
+
+
 data = readDataFromJsonFile(PATH_TO_JSON_FILE)
+
+spl1 = UnivariateSpline(getTimeFromJsonFile(data), getXFromJsonFile(data))
+spl2 = UnivariateSpline(getTimeFromJsonFile(data), getYFromJsonFile(data))
+
+s = int(data[len(data)-2]["time"])
 
 cap = cv2.VideoCapture(PATH_TO_VIDEO)
 
-superData = simpleConcatData(data, int(cap.get(cv2.CAP_PROP_FRAME_COUNT)))
+#superData = simpleConcatData(data, int(cap.get(cv2.CAP_PROP_FRAME_COUNT)))
 
-readVideo(superData)
-
-
-
-# Check if camera opened successfully
-
-
-### Cette partie du code permet de lire la video avec CV2 ##############################
-
-"""if (cap.isOpened() == False):
-    print("Error opening video stream or file")
-
-# Read until video is completed
-while (cap.isOpened()):
-
-    ret, frame = cap.read()
-
-# if frame is read correctly ret is True
-    if not ret:
-        print("Can't receive frame (stream end?). Exiting ...")
-        break
-
-    cv2.waitKey(int(1000/FRAME_RATE))
-    cv2.imshow('frame', frame)
-
-    if cv2.waitKey(1) == ord('q'):
-        break
-
-# When everything done, release the video capture object
-cap.release()
-
-# Closes all the frames
-cv2.destroyAllWindows()"""
+#readVideo(superData)
