@@ -72,7 +72,7 @@ def heatmapWhiteFrame(image, dot):
 
     # PLOTTING : plot the dot to the x, y position
     # ro : bleu, markersize: taille du cercle, alpha: opacité
-    ax.plot(dot['x'], dot['y'], 'ro', markersize=30, alpha=0.01)
+    ax.plot(dot['x'], dot['y'], 'bo', markersize=30, alpha=0.01)
 
     # TODO : Optimize this part because it's cause fps drop
     canvas.draw()
