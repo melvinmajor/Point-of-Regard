@@ -57,6 +57,38 @@ def windowRenderer():
     return fig, ax
 
 
+"""
+
+:param : image : chaque frame de la vidéo
+:param : dot  : le point permettant de tracer la heatmap
+
+"""
+def heatmapWhiteFrame(image, dot):
+    fig, ax = windowRenderer()
+
+    canvas = FigureCanvas(fig)
+
+    ax.imshow(image)
+
+    # PLOTTING : plot the dot to the x, y position
+    # ro : bleu, markersize: taille du cercle, alpha: opacité
+    ax.plot(dot['x'], dot['y'], 'ro', markersize=30, alpha=0.01)
+
+    # TODO : Optimize this part because it's cause fps drop
+    canvas.draw()
+    buf = canvas.buffer_rgba()
+    # convert to a NumPy array
+    X = np.asarray(buf)  # X = image retournée
+
+    # cv2.imshow('frame', X)
+
+    return X
+
+"""
+
+:param : image : chaque frame de la vidéo
+:param : dot  : le point suivant la trajectoire des yeux
+"""
 def plotDotOnImage(image, dot):
     fig, ax = windowRenderer()
 
@@ -65,13 +97,13 @@ def plotDotOnImage(image, dot):
     ax.imshow(image)
 
     # PLOTTING : plot the dot to the x, y position
-    ax.plot(dot['x'], dot['y'], 'bo')
+    ax.plot(dot['x'], dot['y'], 'bo')  # ro = bleu , bo = rouge, go = green
 
     # TODO : Optimize this part because it's cause fps drop
     canvas.draw()
     buf = canvas.buffer_rgba()
     # convert to a NumPy array
-    X = np.asarray(buf)
+    X = np.asarray(buf)  # X = l'image non utilisée
 
     # Remove this for test the matplotlib plot
 
@@ -80,48 +112,58 @@ def plotDotOnImage(image, dot):
     cv2.imshow('frame', X)
 
 
-def readVideo(data):
+# -----------------------------------------------------------------------------------------------------------
 
+
+def readVideo(data):
     cap = cv2.VideoCapture(PATH_TO_VIDEO)
+    # une image créée à partir de pixels blancs
+    whiteFrame = 255 * np.ones((710, 950, 3), np.uint8)
 
     movingDot = {'x': 0, 'y': 0, 'positive_x': False, 'positive_y': False}
 
-    if (cap.isOpened() == False):
+    if not cap.isOpened():
         print("Error opening video stream or file")
 
     i = 0
 
-    # Read until video is completed
-    while (cap.isOpened()):
+    try:
+        # Read until video is completed
+        while cap.isOpened():
 
-        ret, frame = cap.read()
+            ret, frame = cap.read()
 
-        # if frame is read correctly ret is True
-        if not ret:
-            print("Can't receive frame (stream end?). Exiting ...")
-            break
+            # if frame is read correctly ret is True
+            if not ret:
+                print("Can't receive frame (stream end?). Exiting ...")
+                break
 
-        movingDot = {'x': data[i]["LporX"]/1.6, 'y': data[i]["LporY"]/1.6, 'positive_x': False, 'positive_y': False}
+            movingDot = {'x': data[i]["LporX"] / 1.6, 'y': data[i]["LporY"] / 1.6, 'positive_x': False,
+                         'positive_y': False}
+            # cv2.waitKey(int(1000/FRAME_RATE))
+            plt.imsave("Result.jpg", whiteFrame)
+            whiteFrame = heatmapWhiteFrame(whiteFrame, movingDot) # stockage des points dans l'image blanche
+            plotDotOnImage(frame, movingDot) # trajectoire des points sur la vidéo
 
-        # cv2.waitKey(int(1000/FRAME_RATE))
-        plotDotOnImage(frame, movingDot)
+            # funnyDot(movingDot)
+            ##################  Permet de transformer en image le plot  #######################################
 
-        #funnyDot(movingDot)
-        ##################  Permet de transformer en image le plot  #######################################
+            plt.close('all')
 
-        plt.close('all')
+            if cv2.waitKey(1) == ord('q'):
+                break
 
-        if cv2.waitKey(1) == ord('q'):
-            break
-    
-        i+=1
+            i += 1
 
-    # When everything done, release the video capture object
-    cap.release()
+        # When everything done, release the video capture object
+        cap.release()
 
-    # Closes all the frames
-    cv2.destroyAllWindows()
-    
+        # Closes all the frames
+        cv2.destroyAllWindows()
+    except:
+        pass
+
+
 """ *********************************** TODO functions ****************************************** """
 
 """def drawCircle(radius, x_center, y_center, image, color):
