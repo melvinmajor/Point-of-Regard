@@ -1,7 +1,7 @@
 import json
 
 import cv2
-from plot import readVideo
+from plot import readVideo, customReadVideo
 
 from scipy.interpolate import UnivariateSpline
 from scipy.signal import savgol_filter
@@ -45,7 +45,6 @@ def moyenneData(data):
 
 def simpleConcatData(data, frameCount):
     """
-    TODO : implémenter la partie du code faisant la moyenne des différents paquets
 
     Permet de séparer les datas passées en paramètre en petits paquets. Le nombre de data par paquet
     est déterminé par la taille des datas et le nombre de frames de la vidéo
@@ -145,12 +144,114 @@ def getYFromJsonFile(data):
 
     return y
 
+def getDynamicMap(rawData, middleData, frameCount):
+    dataNumber = len(rawData)
+    length = frameCount
+    packetSize = round(dataNumber / length)
+    cutFrequency = round(dataNumber / (packetSize * length - dataNumber))
+
+    frameIncr = 0
+    packetIncr = 0
+
+    sumX = 0.0
+    sumY = 0.0
+    isCut = False
+    return_data = []
+
+    for index, p in enumerate(rawData):
+
+        packetIncr += 1
+        try:
+            sumX += float(p["LporX"])
+            sumY += float(p["LporY"])
+        except KeyError:
+            continue
+
+        if (index + 1) % cutFrequency == 0:
+            isCut = True
+            packetIncr += 1
+
+        if packetIncr >= packetSize:
+            moyenne = moyenneData({'sumX': sumX, 'sumY': sumY, 'validate': isCut})
+            return_data.append({'x_center': rawData[frameIncr]["LporX"], 'y_center': rawData[frameIncr]["LporX"], })
+            return_data[frameIncr]["LporX"] = moyenne["x"]
+            return_data[frameIncr]["LporY"] = moyenne["y"]
+
+            packetIncr = 0
+            frameIncr += 1
+
+            sumX = 0.0
+            sumY = 0.0
+            isCut = False
+
+    return return_data
+
+
+def getMapDatas(rawData, distance, x_center, y_center):
+
+    min_x, max_x, min_y, max_y = getWindowRange(rawData)
+
+    map=[]
+
+    i = 1
+
+    while max_x - i*distance > x_center and max_y - i*distance > y_center:
+
+        range= []
+
+        for elem in rawData:
+
+            if inRange(int(elem["LporX"]), int(elem["LporY"]), distance, min_x, max_x, min_y, max_y):
+
+                range.append(elem)
+
+
+def inRange(x, y, distance, min_x, max_x, min_y, max_y):
+
+    if (x < min_x+distance and x >= min_x) or (x <= max_x and x > max_x-distance):
+
+        if (y >= min_y and y < min_y+distance) or (y <= max_y and y > max_y-distance):
+
+            return True
+        else:
+            return False
+
+    if (y >= min_y and y < min_y + distance) or (y <= max_y and y > max_y - distance):
+
+        if (x < min_x + distance and x >= min_x) or (x <= max_x and x > max_x - distance):
+
+            return True
+        else:
+            return False
+
+    return False
+
+def getWindowRange(rawData):
+
+    min_x= 1000
+    min_y= 1000
+    max_x= 0
+    max_y= 0
+
+    for elem in rawData:
+
+        if int(elem["LporX"]) < min_x:
+            min_x =  int(elem["LporX"])
+
+        if int(elem["LporX"]) > max_x:
+            min_x =  int(elem["LporX"])
+
+        if int(elem["LporY"]) < min_y:
+            min_x =  int(elem["LporX"])
+
+        if int(elem["LporY"]) > max_y:
+            min_x =  int(elem["LporX"])
+
+    return min_x, max_x, min_y, max_y
 
 data = readDataFromJsonFile(PATH_TO_JSON_FILE)
 
 cap = cv2.VideoCapture(PATH_TO_VIDEO)
-
-"""superData = simpleConcatData(data, int(cap.get(cv2.CAP_PROP_FRAME_COUNT)))"""
 
 superData = simpleConcatData(data, int(cap.get(cv2.CAP_PROP_FRAME_COUNT)))
 
@@ -169,32 +270,10 @@ timePerImage = np.linspace(0, s, 1708)
 
 spl1 = UnivariateSpline(timePerImage, filterX, k=5)
 spl2 = UnivariateSpline(timePerImage, filterY, k=5)
-"""
-tabX = getXFromJsonFile(data)
-tabY = getYFromJsonFile(data)
-
-spl1 = UnivariateSpline(tabTimes, tabX, k=3)
-spl2 = UnivariateSpline(tabTimes, tabY, k=3)
-"""
-
-"""tabTimes = getTimeFromJsonFile(data)
-tabX = getXFromJsonFile(superData)
-tabY = getYFromJsonFile(superData)
-
-tabX.append(tabX[len(tabX)-1])
-tabY.append(tabY[len(tabY)-1])
-
-for i in range(50):
-    spl3 = UnivariateSpline(timePerImage, xArray, k=5)
-    spl4 = UnivariateSpline(timePerImage, yArray, k=5)
-    xArray = spl3(timePerImage)
-    yArray = spl4(timePerImage)
-"""
 
 xArray = spl1(timePerImage)
 yArray = spl2(timePerImage)
 
-#newData = fuseData(filterX, filterY)
 newData = fuseData(xArray, yArray)
 
-readVideo(newData)
+customReadVideo(newData)
