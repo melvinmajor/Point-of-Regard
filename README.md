@@ -6,7 +6,9 @@
 
 * Put the video file in the data directory
 * Put the data in the data directory
-* launch the read-video.py file  
+* Delete manually the 2 first line of the data file
+* Launch dataToJson.py with the -f parameter and enter the path to the data file.
+* Launch the read-video.py file.  
 
 ## The Team
 
