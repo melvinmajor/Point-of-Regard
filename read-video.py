@@ -1,3 +1,5 @@
+#!/usr/bin/python3 -u
+# coding=utf8
 import json
 
 import cv2

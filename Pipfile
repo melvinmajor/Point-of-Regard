@@ -7,8 +7,10 @@ name = "pypi"
 opencv-python = "*"
 scipy = "*"
 opencv-python-headless = "*"
+opencv-contrib-python = "*"
+matplotlib = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.7"
+python_version = "3"
