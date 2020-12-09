@@ -1,6 +1,12 @@
 > # Point of Regard
 >
-> Project for the lesson of Signal and data processing, 3nd Bachelor at EPHEC Louvain-la-Neuve 
+> Project for the lesson of Signal and data processing, 3nd Bachelor at EPHEC Louvain-la-Neuve
+
+## How to use :
+
+* Put the video file in the data directory
+* Put the data in the data directory
+* launch the read-video.py file  
 
 ## The Team
 
@@ -8,7 +14,7 @@
 
 :point_right: **Members:**
 
-Our team is composed of 4 people:
+Our team is composed of 5 people:
 
 * Edwin Autome (_**@AutomeEdwin**_)
 * Louis Arys (_**@diomenios**_)
