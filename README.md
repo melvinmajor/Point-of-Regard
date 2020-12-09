@@ -2,6 +2,14 @@
 >
 > Project for the lesson of Signal and data processing, 3nd Bachelor at EPHEC Louvain-la-Neuve 
 
+How to use :
+
+    Put the video file in the data directory
+    Put the data in the data directory
+    Delete manually the 2 first line of the data file
+    Launch dataToJson.py with the -f parameter and enter the path to the data file.
+    Launch the read-video.py file.
+
 ## The Team
 
 :point_right: **Group:** _**7**_
